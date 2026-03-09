@@ -2,76 +2,122 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GlowSkin.VN - Skincare Routine Tracker</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1; --secondary: #a855f7; --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-            --bg: #0f111a; --surface: #1e2130; --border: rgba(255, 255, 255, 0.08); --text-main: #f8fafc; --text-muted: #94a3b8;
+            --primary: #1A94FF; /* Màu xanh Tiki */
+            --primary-hover: #0b7ae0;
+            --secondary: #a855f7;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #0f111a;
+            --surface: #1e2130;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-        .bg-glow-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
+        .bg-glow-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(26,148,255,0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
         .bg-glow-2 { position: fixed; bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
 
-        .site-header { background: rgba(30, 33, 48, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+        /* Header */
+        .site-header { background: rgba(30, 33, 48, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
         .logo-link { text-decoration: none; display: flex; align-items: center; gap: 10px; }
-        .logo-link h1 { font-size: 1.5rem; font-weight: 800; background: linear-gradient(90deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .site-footer { margin-top: auto; padding: 20px; text-align: center; border-top: 1px solid var(--border); background: rgba(30, 33, 48, 0.4); color: var(--text-muted); font-size: 0.85rem; }
+        .logo-link h1 { font-size: 1.4rem; font-weight: 800; background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .site-footer { margin-top: auto; padding: 20px; text-align: center; border-top: 1px solid var(--border); background: rgba(30, 33, 48, 0.4); color: var(--text-muted); font-size: 0.8rem; }
 
-        .app-container { display: flex; max-width: 1400px; margin: 0 auto; padding: 24px; gap: 30px; align-items: flex-start; width: 100%; flex: 1; }
+        /* Container */
+        .app-container { display: flex; max-width: 1200px; margin: 0 auto; padding: 20px; gap: 24px; align-items: flex-start; width: 100%; flex: 1; }
         
-        /* Sidebar & Profiles */
-        .sidebar { flex: 0 0 320px; background: rgba(30, 33, 48, 0.6); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 24px; padding: 24px; position: sticky; top: 90px; }
-        .profile-section { background: rgba(0,0,0,0.2); border: 1px solid var(--primary); padding: 15px; border-radius: 16px; margin-bottom: 20px; }
+        /* Sidebar */
+        .sidebar { flex: 0 0 320px; background: rgba(30, 33, 48, 0.6); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 20px; position: sticky; top: 80px; }
+        .profile-section { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 16px; margin-bottom: 20px; }
         .profile-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 10px; display: block; }
-        .selector-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .selector-btn { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.85rem; }
-        .selector-btn.active { background: rgba(99, 102, 241, 0.2); border-color: var(--primary); color: white; }
+        .selector-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        .selector-group:last-child { margin-bottom: 0; }
+        .selector-btn { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 5px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.8rem; text-align: center; }
+        .selector-btn.active { background: rgba(26, 148, 255, 0.2); border-color: var(--primary); color: white; }
 
-        .stat-box { background: var(--surface); padding: 20px; border-radius: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
-        .stat-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block; }
-        .stat-value { font-size: 1.5rem; font-weight: 800; }
-        .water-controls { display: flex; gap: 10px; margin-top: 12px; }
-        .btn-water { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 600; }
-        .progress-bar { width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+        .stat-box { background: var(--surface); padding: 15px; border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .stat-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; display: block; }
+        .stat-value { font-size: 1.3rem; font-weight: 800; }
+        .water-controls { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-water { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 8px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-water:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar { width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; margin-top: 10px; overflow: hidden; }
         .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: 0.5s ease; }
 
+        /* Main Content */
         .main-content { flex: 1; min-width: 0; }
-        .tabs-container { margin-bottom: 24px; }
-        .tabs-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
-        .tab-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); padding: 12px 24px; border-radius: 100px; font-size: 0.95rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        
+        /* Tabs Scrollable (Mobile Friendly) */
+        .tabs-container { margin-bottom: 20px; position: relative; }
+        .tabs-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .tabs-scroll::-webkit-scrollbar { display: none; }
+        .tab-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 20px; border-radius: 100px; font-size: 0.9rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 15px rgba(26, 148, 255, 0.3); }
 
+        /* Tasks */
         .task-list { display: flex; flex-direction: column; gap: 12px; }
-        .task-item { background: rgba(30, 33, 48, 0.5); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; display: flex; align-items: flex-start; gap: 16px; transition: 0.3s; }
-        .task-item.checked { border-color: var(--success); background: rgba(16, 185, 129, 0.05); opacity: 0.6; }
-        .checkbox { width: 28px; height: 28px; border: 2px solid var(--text-muted); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .task-item { background: rgba(30, 33, 48, 0.5); border: 1px solid var(--border); border-radius: 16px; padding: 15px; display: flex; align-items: flex-start; gap: 12px; transition: 0.3s; }
+        .task-item.checked { border-color: var(--success); background: rgba(16, 185, 129, 0.05); opacity: 0.7; }
+        .checkbox { width: 24px; height: 24px; border: 2px solid var(--text-muted); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
         .task-item.checked .checkbox { background: var(--success); border-color: var(--success); }
-        .task-item.checked .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 16px; }
+        .task-item.checked .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 14px; }
         .task-content { flex: 1; }
-        .task-title { font-size: 1.05rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block; }
-        .task-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+        .task-title { font-size: 1rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px; display: block; }
+        .task-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
         .task-item.checked .task-title { text-decoration: line-through; }
 
-        /* Vùng tìm kiếm */
-        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: white; padding: 15px 20px; border-radius: 12px; font-size: 1rem; outline: none; }
-        .btn-search { background: var(--primary); color: white; border: none; padding: 0 25px; border-radius: 12px; font-weight: 600; cursor: pointer; }
-
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .product-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;}
-        .product-img { width: 100%; height: 200px; object-fit: contain; background: white; padding: 10px; }
-        .product-info { padding: 15px; display: flex; flex-direction: column; flex: 1; }
-        .product-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
-        .product-price { color: var(--warning); font-weight: 800; font-size: 1.2rem; }
-        .btn-buy { text-align: center; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); color: #a5b4fc; text-decoration: none; padding: 10px; border-radius: 8px; margin-top: 15px; font-weight: 600; }
+        /* Search & Shopping */
+        .search-container { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: white; padding: 12px 15px; border-radius: 12px; font-size: 0.95rem; outline: none; width: 100%;}
+        .search-input:focus { border-color: var(--primary); }
+        .btn-search { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;}
         
-        @media (max-width: 900px) { .app-container { flex-direction: column; padding: 16px; } .sidebar { position: static; width: 100%; } }
+        .suggestions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;}
+        .tag-suggest { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; cursor: pointer; }
+        .tag-suggest:hover { background: rgba(26, 148, 255, 0.2); color: white; border-color: var(--primary); }
+
+        /* Product Grid cho Mobile & Desktop */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+        .product-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .product-img { width: 100%; height: 180px; object-fit: cover; background: white; padding: 5px; }
+        .product-info { padding: 12px; display: flex; flex-direction: column; flex: 1; }
+        .product-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; flex: 1; }
+        .product-price { color: var(--warning); font-weight: 800; font-size: 1.1rem; }
+        .btn-buy { text-align: center; background: rgba(26, 148, 255, 0.1); border: 1px solid var(--primary); color: var(--primary); text-decoration: none; padding: 8px; border-radius: 8px; margin-top: 10px; font-weight: 600; font-size: 0.85rem; }
+
+        /* Responsive Mobile Tối Ưu */
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; padding: 15px; gap: 20px; }
+            .sidebar { width: 100%; position: static; padding: 15px; border-radius: 16px; }
+            
+            /* Sửa khung search trên mobile: input và button rớt dòng cho dễ bấm */
+            .search-container { flex-direction: column; }
+            .btn-search { padding: 12px; }
+            
+            /* Lưới sản phẩm: 2 món trên 1 hàng cho mobile (Giống app Shopee) */
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .product-img { height: 140px; }
+            .product-info { padding: 10px; }
+            .product-name { font-size: 0.8rem; }
+            .product-price { font-size: 1rem; }
+            .btn-buy { font-size: 0.8rem; padding: 6px; }
+        }
+
+        /* Responsive Mobile Rất Nhỏ (iPhone SE, Galaxy Fold) */
+        @media (max-width: 360px) {
+            .product-grid { grid-template-columns: 1fr; }
+            .product-img { height: 180px; }
+        }
     </style>
 </head>
 <body>
@@ -83,7 +129,7 @@
     <a href="index.html" class="logo-link">
         <h1>GlowSkin<span>.VN</span></h1>
     </a>
-    <div style="font-size: 0.85rem; color: var(--text-muted);">Hệ thống chuẩn Y Khoa</div>
+    <div style="font-size: 0.8rem; color: var(--text-muted); background: rgba(26,148,255,0.1); padding: 4px 10px; border-radius: 50px; border: 1px solid rgba(26,148,255,0.3); color: var(--primary); font-weight: 600;">Y Khoa</div>
 </header>
 
 <div class="app-container">
@@ -94,9 +140,9 @@
                 <button class="selector-btn" id="btn-male" onclick="setProfile('gender', 'male')">👨 Nam giới</button>
                 <button class="selector-btn" id="btn-female" onclick="setProfile('gender', 'female')">👩 Nữ giới</button>
             </div>
-            <div class="selector-group" style="margin-bottom: 0;">
+            <div class="selector-group">
                 <button class="selector-btn" id="btn-oily" onclick="setProfile('skin', 'oily')">💧 Da Dầu/Mụn</button>
-                <button class="selector-btn" id="btn-dry" onclick="setProfile('skin', 'dry')">🍂 Da Khô/Nhạy Cảm</button>
+                <button class="selector-btn" id="btn-dry" onclick="setProfile('skin', 'dry')">🍂 Da Khô/Yếu</button>
             </div>
         </div>
 
@@ -110,9 +156,9 @@
         </div>
         <div class="stat-box">
             <span class="stat-title">Tiến độ Routine</span>
-            <div style="display: flex; justify-content: space-between;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                 <span class="stat-value" id="p-txt">0%</span>
-                <span style="color: var(--text-muted); font-size: 0.85rem;" id="task-count">0/0 Task</span>
+                <span style="color: var(--text-muted); font-size: 0.8rem;" id="task-count">0/0 Task</span>
             </div>
             <div class="progress-bar"><div class="progress-fill" id="p-fill"></div></div>
         </div>
@@ -124,55 +170,47 @@
                 <button class="tab-btn active" onclick="switchTab(event, 'morning')">🌅 Sáng</button>
                 <button class="tab-btn" onclick="switchTab(event, 'evening')">🌙 Tối</button>
                 <button class="tab-btn" onclick="switchTab(event, 'lifestyle')">🧘‍♀️ Sinh hoạt</button>
-                <button class="tab-btn" onclick="switchTab(event, 'shopping')">🛒 Tra Giá Mỹ Phẩm</button>
+                <button class="tab-btn" onclick="switchTab(event, 'shopping')">🛒 Tìm Mỹ Phẩm Tiki</button>
             </div>
         </div>
         <div id="main-content-area"></div>
     </main>
 </div>
 
+<footer class="site-footer">
+    &copy; 2026 GlowSkin.VN - Hệ thống tối ưu hóa nhan sắc. <br>
+    Copyright by <span>@vnsoftware</span>. All rights reserved.
+</footer>
+
 <script>
-    // DATA BASE ĐỒ SỘ (Phân loại theo Giới tính & Loại da)
-    // gender: 'all' | 'male' | 'female'
-    // skin: 'all' | 'oily' | 'dry'
+    // DATABASE CHĂM SÓC DA
     const fullDB = [
-        // --- BUỔI SÁNG ---
         { id: 1, tab: 'morning', t: "Uống 1 ly nước ấm ngay khi dậy", d: "Thải độc cơ thể, đánh thức dạ dày.", gender: 'all', skin: 'all' },
         { id: 2, tab: 'morning', t: "Rửa mặt nước lạnh / ấm nhẹ", d: "Da khô chỉ nên rửa bằng nước, không dùng SRM sáng để tránh mất màng ẩm.", gender: 'all', skin: 'dry' },
-        { id: 3, tab: 'morning', t: "Dùng Sữa rửa mặt tạo bọt (Foaming)", d: "Làm sạch dầu nhờn tiết ra sau một đêm ngủ.", gender: 'all', skin: 'oily' },
-        { id: 4, tab: 'morning', t: "Cạo râu & Dùng Toner làm dịu", d: "Sử dụng bọt cạo râu để tránh vi tổn thương nang lông, lau toner sát khuẩn sau cạo.", gender: 'male', skin: 'all' },
+        { id: 3, tab: 'morning', t: "Dùng Sữa rửa mặt tạo bọt", d: "Làm sạch dầu nhờn tiết ra sau một đêm ngủ.", gender: 'all', skin: 'oily' },
+        { id: 4, tab: 'morning', t: "Cạo râu & Dùng Toner làm dịu", d: "Sử dụng bọt cạo râu, lau toner sát khuẩn sau cạo.", gender: 'male', skin: 'all' },
         { id: 5, tab: 'morning', t: "Lau Toner kẹp ẩm (HA / Panthenol)", d: "Giúp da căng mọng trước khi makeup hoặc bôi kem chống nắng.", gender: 'female', skin: 'dry' },
-        { id: 6, tab: 'morning', t: "Thoa Serum Vitamin C", d: "Chống oxy hóa, bảo vệ da khỏi gốc tự do, tăng hiệu quả của kem chống nắng.", gender: 'all', skin: 'all' },
-        { id: 7, tab: 'morning', t: "Kem dưỡng ẩm mỏng nhẹ (Dạng Gel)", d: "Thấm nhanh, không gây bít tắc lỗ chân lông. Nam giới rất ghét bết dính nên ưu tiên dạng Gel.", gender: 'all', skin: 'oily' },
-        { id: 8, tab: 'morning', t: "Kem dưỡng ẩm (Dạng Cream)", d: "Phục hồi hàng rào bảo vệ, giữ nước cho da không bị bong tróc trong phòng máy lạnh.", gender: 'all', skin: 'dry' },
-        { id: 9, tab: 'morning', t: "Bôi Kem Chống Nắng (SPF 50+)", d: "Bắt buộc. Bôi đủ 2 đốt ngón tay. Da dầu chọn loại 'Kiềm dầu/Matte', Da khô chọn loại 'Cấp ẩm/Hydrating'.", gender: 'all', skin: 'all' },
+        { id: 6, tab: 'morning', t: "Thoa Serum Vitamin C", d: "Chống oxy hóa, bảo vệ da khỏi gốc tự do.", gender: 'all', skin: 'all' },
+        { id: 7, tab: 'morning', t: "Kem dưỡng ẩm mỏng nhẹ (Gel)", d: "Thấm nhanh, không gây bít tắc lỗ chân lông.", gender: 'all', skin: 'oily' },
+        { id: 8, tab: 'morning', t: "Kem dưỡng ẩm (Dạng Cream)", d: "Phục hồi hàng rào bảo vệ, giữ nước cho da.", gender: 'all', skin: 'dry' },
+        { id: 9, tab: 'morning', t: "Bôi Kem Chống Nắng (SPF 50+)", d: "Bắt buộc. Bôi đủ 2 đốt ngón tay.", gender: 'all', skin: 'all' },
         
-        // --- BUỔI TỐI ---
-        { id: 20, tab: 'evening', t: "Tẩy trang bằng Nước/Dầu tẩy trang", d: "Lau sạch bụi bẩn, lớp makeup và kem chống nắng. Đàn ông cũng phải tẩy trang nếu có dùng KCN.", gender: 'all', skin: 'all' },
-        { id: 21, tab: 'evening', t: "Vệ sinh cọ / mút trang điểm", d: "Giặt sạch bằng nước giặt chuyên dụng hoặc dầu gội đầu để tránh vi khuẩn ủ mụn.", gender: 'female', skin: 'all' },
-        { id: 22, tab: 'evening', t: "Sữa rửa mặt Sạch Sâu", d: "Massage kỹ vùng chữ T (trán, mũi, cằm) nơi tiết nhiều dầu nhất.", gender: 'all', skin: 'oily' },
-        { id: 23, tab: 'evening', t: "Sữa rửa mặt Dịu Nhẹ (Dạng Sữa/Không bọt)", d: "Bảo vệ màng lipid tự nhiên của da khô nhạy cảm.", gender: 'all', skin: 'dry' },
-        { id: 24, tab: 'evening', t: "Tẩy da chết hóa học BHA (Salicylic Acid)", d: "Dùng 2-3 lần/tuần. Tan trong dầu, chui sâu vào lỗ chân lông đẩy mụn ẩn, mụn đầu đen.", gender: 'all', skin: 'oily' },
-        { id: 25, tab: 'evening', t: "Tẩy da chết hóa học AHA (Lactic/Glycolic Acid)", d: "Dùng 1-2 lần/tuần. Bạt sừng bề mặt, giúp da khô sần sùi trở nên láng mịn.", gender: 'all', skin: 'dry' },
-        { id: 26, tab: 'evening', t: "Đắp mặt nạ đất sét (Clay Mask)", d: "Hút bã nhờn sâu trong nang lông. Chỉ đắp tối đa 10 phút, không để nứt nẻ trên mặt.", gender: 'all', skin: 'oily' },
-        { id: 27, tab: 'evening', t: "Đắp mặt nạ giấy cấp ẩm (Sheet Mask)", d: "Phục hồi làn da thiếu nước, đắp 15-20 phút rồi tháo ra vỗ nhẹ.", gender: 'all', skin: 'dry' },
-        { id: 28, tab: 'evening', t: "Thoa Toner cân bằng pH", d: "Trả lại môi trường pH 5.5 cho da sau khi dùng sữa rửa mặt.", gender: 'all', skin: 'all' },
-        { id: 29, tab: 'evening', t: "Thoa Serum Đặc trị (Niacinamide/Retinol)", d: "Kiềm dầu, se khít lỗ chân lông, làm sáng da và trị thâm.", gender: 'all', skin: 'all' },
-        { id: 30, tab: 'evening', t: "Chấm mụn (Benzoyl Peroxide / Tràm trà)", d: "Chỉ chấm trực tiếp lên nốt mụn sưng viêm (mụn mủ, mụn bọc), không bôi toàn mặt.", gender: 'all', skin: 'oily' },
-        { id: 31, tab: 'evening', t: "Dưỡng ẩm khóa tinh chất (Moisturizer)", d: "Bước cuối cùng để serum không bay hơi. Khóa chặt tinh chất lại dưới da.", gender: 'all', skin: 'all' },
-        { id: 32, tab: 'evening', t: "Dưỡng môi (Lip Balm / Sleeping Mask)", d: "Bôi lớp dày để sáng hôm sau chà nhẹ là môi hồng hào, hết bong tróc da chết.", gender: 'all', skin: 'all' },
+        { id: 20, tab: 'evening', t: "Tẩy trang bằng Nước/Dầu", d: "Lau sạch bụi bẩn, lớp makeup và kem chống nắng.", gender: 'all', skin: 'all' },
+        { id: 21, tab: 'evening', t: "Vệ sinh cọ / mút trang điểm", d: "Giặt sạch bằng nước giặt để tránh vi khuẩn ủ mụn.", gender: 'female', skin: 'all' },
+        { id: 22, tab: 'evening', t: "Sữa rửa mặt Sạch Sâu", d: "Massage kỹ vùng chữ T (trán, mũi, cằm).", gender: 'all', skin: 'oily' },
+        { id: 23, tab: 'evening', t: "Sữa rửa mặt Dịu Nhẹ (Không bọt)", d: "Bảo vệ màng lipid tự nhiên của da khô.", gender: 'all', skin: 'dry' },
+        { id: 24, tab: 'evening', t: "Tẩy da chết hóa học BHA", d: "Dùng 2-3 lần/tuần. Đẩy mụn ẩn, mụn đầu đen.", gender: 'all', skin: 'oily' },
+        { id: 25, tab: 'evening', t: "Tẩy da chết hóa học AHA", d: "Dùng 1-2 lần/tuần. Giúp da khô sần sùi trở nên láng mịn.", gender: 'all', skin: 'dry' },
+        { id: 26, tab: 'evening', t: "Thoa Toner cân bằng pH", d: "Trả lại môi trường pH 5.5 cho da.", gender: 'all', skin: 'all' },
+        { id: 27, tab: 'evening', t: "Thoa Serum Đặc trị", d: "Kiềm dầu, se khít lỗ chân lông, làm sáng da.", gender: 'all', skin: 'all' },
+        { id: 28, tab: 'evening', t: "Dưỡng ẩm khóa tinh chất", d: "Khóa chặt tinh chất lại dưới da không bị bay hơi.", gender: 'all', skin: 'all' },
 
-        // --- SINH HOẠT ---
-        { id: 50, tab: 'lifestyle', t: "Uống đủ 2 Lít nước lọc", d: "Da thiếu nước từ bên trong sẽ tự động tiết thêm dầu để bù lại. Hãy uống đủ nước!", gender: 'all', skin: 'all' },
-        { id: 51, tab: 'lifestyle', t: "Tuyệt đối không sờ tay lên mặt", d: "Bàn tay chứa hàng triệu vi khuẩn (từ chuột máy tính, tay nắm cửa). Sờ mặt là nguyên nhân #1 gây mụn viêm.", gender: 'all', skin: 'all' },
-        { id: 52, tab: 'lifestyle', t: "Vệ sinh màn hình điện thoại bằng cồn", d: "Điện thoại rất dơ. Khi áp lên tai nghe gọi, vi khuẩn sẽ truyền thẳng vào má gây mụn mảng.", gender: 'all', skin: 'all' },
-        { id: 53, tab: 'lifestyle', t: "Thay và giặt vỏ gối", d: "1 lần/tuần. Tóc và bã nhờn bám trên gối sẽ ủ vi khuẩn và lây lại lên mặt bạn mỗi đêm.", gender: 'all', skin: 'all' },
-        { id: 54, tab: 'lifestyle', t: "Cắt giảm Trà Sữa / Đồ ngọt / Sữa bò", d: "Đường và các chế phẩm từ sữa bò gây đột biến Insulin, kích thích tuyến bã nhờn bùng viêm mụn ẩn cực kỳ mạnh.", gender: 'all', skin: 'all' },
-        { id: 55, tab: 'lifestyle', t: "Ngủ trước 23h30", d: "Giờ vàng từ 23h đến 3h sáng là lúc gan thải độc và collagen tái sinh. Thức khuya da sẽ sạm và rũ rượi.", gender: 'all', skin: 'all' },
-        { id: 56, tab: 'lifestyle', t: "Gội đầu sạch sẽ, buộc tóc gọn", d: "Tóc bết xõa vào mặt hoặc mồ hôi từ chân tóc chảy xuống sẽ gây mụn trứng cá vùng trán.", gender: 'all', skin: 'all' },
-        { id: 57, tab: 'lifestyle', t: "Tập thể dục đổ mồ hôi", d: "30p mỗi ngày. Mồ hôi giúp đẩy chất bẩn kẹt trong lỗ chân lông ra ngoài cực kỳ hiệu quả.", gender: 'all', skin: 'all' },
-        { id: 58, tab: 'lifestyle', t: "Vệ sinh chăn ga & Kiểm tra sữa tắm", d: "Sử dụng sữa tắm có chứa BHA (như xà phòng diệt khuẩn) để ngăn ngừa mụn lưng, mụn ngực.", gender: 'male', skin: 'all' },
-        { id: 59, tab: 'lifestyle', t: "Theo dõi chu kỳ kinh nguyệt", d: "Mụn nội tiết thường mọc quanh cằm/quai hàm trước kỳ rụng trứng. Cần kĩ làm sạch hơn vào những ngày này.", gender: 'female', skin: 'all' }
+        { id: 50, tab: 'lifestyle', t: "Uống đủ 2 Lít nước lọc", d: "Da thiếu nước sẽ tiết thêm dầu để bù lại.", gender: 'all', skin: 'all' },
+        { id: 51, tab: 'lifestyle', t: "Tuyệt đối không sờ tay lên mặt", d: "Nguyên nhân số 1 gây mụn viêm lây lan.", gender: 'all', skin: 'all' },
+        { id: 52, tab: 'lifestyle', t: "Thay và giặt vỏ gối (1 lần/tuần)", d: "Tránh vi khuẩn từ tóc lây lên mặt khi ngủ.", gender: 'all', skin: 'all' },
+        { id: 53, tab: 'lifestyle', t: "Cắt giảm Đồ ngọt / Sữa bò", d: "Đường kích thích tuyến bã nhờn bùng viêm mụn ẩn cực mạnh.", gender: 'all', skin: 'all' },
+        { id: 54, tab: 'lifestyle', t: "Ngủ trước 23h30", d: "Thức khuya da sẽ sạm và rũ rượi vào hôm sau.", gender: 'all', skin: 'all' },
+        { id: 55, tab: 'lifestyle', t: "Theo dõi chu kỳ kinh nguyệt", d: "Mụn nội tiết thường mọc quanh cằm trước kỳ rụng trứng.", gender: 'female', skin: 'all' }
     ];
 
     let userProfile = {
@@ -183,7 +221,6 @@
     let currentTab = 'morning';
     let state = { checkedIds: [], waterMl: 0 };
 
-    // Khởi tạo UI cấu hình Profile
     function initProfileUI() {
         document.getElementById('btn-male').classList.toggle('active', userProfile.gender === 'male');
         document.getElementById('btn-female').classList.toggle('active', userProfile.gender === 'female');
@@ -191,16 +228,14 @@
         document.getElementById('btn-dry').classList.toggle('active', userProfile.skin === 'dry');
     }
 
-    // Cập nhật Profile từ nút bấm
     function setProfile(type, val) {
         userProfile[type] = val;
         localStorage.setItem('gs_' + type, val);
         initProfileUI();
-        state.checkedIds = []; // Reset tiến độ khi đổi profile (logic tùy chọn)
+        state.checkedIds = []; 
         render();
     }
 
-    // Lọc dữ liệu DB dựa theo Profile
     function getFilteredTasks(tabName) {
         return fullDB.filter(task => {
             if (task.tab !== tabName) return false;
@@ -213,37 +248,34 @@
     function render() {
         const container = document.getElementById('main-content-area');
         
-        // Tab Mua Sắm (Cào Hasaki)
         if(currentTab === 'shopping') {
             container.innerHTML = `
-                <div class="search-container" style="margin-bottom: 10px;">
+                <div class="search-container">
                     <input type="text" id="search-input" class="search-input" placeholder="Tìm tên mỹ phẩm (VD: bha, kem chống nắng)..." onkeypress="handleEnter(event)">
-                    <button class="btn-search" onclick="executeSearch()" style="background: #1A94FF;">Tìm trên Tiki</button>
+                    <button class="btn-search" onclick="executeSearch()">Tìm trên Tiki</button>
                 </div>
                 <div class="suggestions">
-                    <span style="font-size: 0.8rem; color: var(--text-muted); line-height: 28px;">🔥 Xu hướng:</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">🔥 Từ khóa:</span>
                     <button class="tag-suggest" onclick="quickSearch('Serum B5 La Roche Posay')">Serum B5</button>
                     <button class="tag-suggest" onclick="quickSearch('BHA Paula Choice')">BHA Trị mụn</button>
                     <button class="tag-suggest" onclick="quickSearch('Kem chống nắng Skin Aqua')">KCN Skin Aqua</button>
-                    <button class="tag-suggest" onclick="quickSearch('Tẩy trang Bioderma')">Tẩy trang Bioderma</button>
                 </div>
                 <div id="shopping-results" class="product-grid">
                     <div style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 30px;">
-                        Hệ thống kết nối trực tiếp với <b>Tiki Trading</b>. Nhập tên sản phẩm để bắt đầu!
+                        Kết nối với API <b>Tiki Trading</b> chính hãng. Nhập tên sản phẩm để bắt đầu!
                     </div>
                 </div>
             `;
             return;
         }
 
-        // Render Tabs Nhiệm Vụ (Sáng, Tối, Sinh hoạt)
         const activeTasks = getFilteredTasks(currentTab);
         if (activeTasks.length === 0) {
             container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted)">Không có nhiệm vụ nào trong mục này.</div>`;
         } else {
             container.innerHTML = `<div class="task-list">` + activeTasks.map(item => `
-                <div class="task-item ${state.checkedIds.includes(item.id) ? 'checked' : ''}">
-                    <div class="checkbox" onclick="toggle(${item.id})"></div>
+                <div class="task-item ${state.checkedIds.includes(item.id) ? 'checked' : ''}" onclick="toggle(${item.id})">
+                    <div class="checkbox"></div>
                     <div class="task-content">
                         <span class="task-title">${item.t}</span>
                         <span class="task-desc">${item.d}</span>
@@ -267,25 +299,32 @@
         render();
     }
 
-    // --- TÌM KIẾM SẢN PHẨM HASAKI ---
+    // TIKI API SEARCH
     function handleEnter(e) { if (e.key === 'Enter') executeSearch(); }
+
+    function quickSearch(keyword) {
+        document.getElementById('search-input').value = keyword;
+        executeSearch();
+    }
 
     function executeSearch() {
         const query = document.getElementById('search-input').value.trim();
         if (!query) return;
 
         const resultsDiv = document.getElementById('shopping-results');
-        resultsDiv.innerHTML = `<div style="color: var(--primary); font-weight: bold; text-align: center; grid-column: 1/-1; padding: 40px;">🔄 Đang lấy dữ liệu từ nền tảng Tiki...</div>`;
+        resultsDiv.innerHTML = `<div style="color: var(--primary); font-weight: bold; text-align: center; grid-column: 1/-1; padding: 40px;">🔄 Đang lấy dữ liệu từ Tiki...</div>`;
 
         fetch('/api/scraper?q=' + encodeURIComponent(query))
             .then(res => res.json())
-            .then(data => {
-                if(data.error) {
-                    resultsDiv.innerHTML = `<div style="color:red; text-align:center; grid-column:1/-1;">Lỗi Server Python: ${data.error}</div>`;
+            .then(response => {
+                if(response.error) {
+                    resultsDiv.innerHTML = `<div style="color:var(--danger); text-align:center; grid-column:1/-1; padding: 20px;">${response.error}</div>`;
                     return;
                 }
+                
+                const data = response.data;
                 if(!data || data.length === 0) {
-                    resultsDiv.innerHTML = `<div style="color: var(--text-muted); text-align:center; grid-column:1/-1;">Không tìm thấy sản phẩm. Tiki có thể đang chặn hoặc hết hàng.</div>`;
+                    resultsDiv.innerHTML = `<div style="color: var(--text-muted); text-align:center; grid-column:1/-1;">Không tìm thấy sản phẩm chính hãng nào.</div>`;
                     return;
                 }
 
@@ -295,13 +334,13 @@
                         <div class="product-info">
                             <div class="product-name">${p.title}</div>
                             <div class="product-price">${p.price}</div>
-                            <a href="${p.link}" target="_blank" class="btn-buy">Mua tại Tiki</a>
+                            <a href="${p.link}" target="_blank" class="btn-buy">🛒 Mua tại Tiki</a>
                         </div>
                     </div>
                 `).join('');
             })
             .catch(err => {
-                resultsDiv.innerHTML = `<div style="color:red; text-align:center; grid-column:1/-1;">Lỗi kết nối. Vui lòng kiểm tra lại Vercel API.</div>`;
+                resultsDiv.innerHTML = `<div style="color:var(--danger); text-align:center; grid-column:1/-1; padding: 20px;">Lỗi mạng hoặc Server Vercel chưa sẵn sàng.</div>`;
             });
     }
 
@@ -311,10 +350,9 @@
     }
 
     function updateStats() {
-        // Tính tổng task của user này trong cả ngày (Sáng + Tối + Sinh hoạt)
         let total = getFilteredTasks('morning').length + getFilteredTasks('evening').length + getFilteredTasks('lifestyle').length;
         let done = state.checkedIds.length;
-        let p = Math.round((done / total) * 100) || 0;
+        let p = total > 0 ? Math.round((done / total) * 100) : 0;
         
         document.getElementById('p-fill').style.width = p + '%';
         document.getElementById('p-txt').innerText = p + '%';
@@ -322,7 +360,6 @@
         document.getElementById('water-count').innerText = `${(state.waterMl/1000).toFixed(1)} / 2.0L`;
     }
 
-    // Khởi chạy
     initProfileUI();
     render();
 </script>
