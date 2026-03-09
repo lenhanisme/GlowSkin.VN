@@ -1,48 +1,30 @@
 from flask import Flask, jsonify, request
 import requests
-import urllib.request
 import urllib.parse
 from bs4 import BeautifulSoup
 import concurrent.futures
-import ssl
 import time
 
 app = Flask(__name__)
 
-# Bỏ qua lỗi chứng chỉ SSL để tránh bị chặn gắt
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
-
-# Danh sách User-Agents siêu đa dạng (Lách Cloudflare Anti-bot)
-USER_AGENTS = [
-    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", # Bot Google thường được cho qua
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36", # Trình duyệt thật
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15", # Mac OS
-    "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", # Bing bot
-    "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)", # Facebook crawler
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1", # iOS
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" # Linux
-]
-
-# Các endpoint dự phòng của Hasaki (Có lúc trang search bị khóa nhưng trang ajax lại thả lỏng)
-ENDPOINTS = [
-    "https://hasaki.vn/catalogsearch/result?q={}",
-    "https://hasaki.vn/catalogsearch/ajax/suggest?q={}",
-    "https://hasaki.vn/elastic/search?q={}"
-]
+# --- BỘ NHỚ ĐỆM (CACHE) ---
+CACHE = {}
+CACHE_TTL = 3600  # Lưu kết quả 1 tiếng cho tốc độ siêu tốc
 
 def parse_hasaki_html(html_content):
+    """Hàm bóc tách HTML chung"""
+    if not html_content or "Just a moment..." in html_content or "cf-browser-verification" in html_content:
+        return []
+        
     soup = BeautifulSoup(html_content, 'html.parser')
     products = []
     
-    # Gom tất cả các class mà Hasaki có thể dùng để bọc sản phẩm
+    # Cấu trúc web của Hasaki
     items = soup.select('.ProductGridItem__itemOuter, .item_sp_hasaki, .product-item, .item-sanpham, .v2_sp_width')
     
-    for item in items[:15]: # Lấy tối đa 15 sản phẩm hiển thị ra web cho đẹp
+    for item in items[:15]: 
         a_tag = item.select_one('.vn_names, .product-item-link, a.product-name, h3 a, .width_common.space_bottom_3 a') or item.find('a')
-        if not a_tag:
-            continue
+        if not a_tag: continue
             
         title = a_tag.text.strip()
         link = a_tag.get('href', '')
@@ -55,7 +37,6 @@ def parse_hasaki_html(html_content):
         img_tag = item.select_one('.img_sp, .product-image-photo, img.img-responsive') or item.find('img')
         img_url = ""
         if img_tag:
-            # Hasaki dùng data-src để chống load ảnh chậm (lazyload)
             img_url = img_tag.get('data-src') or img_tag.get('src', '')
             
         if title and img_url and len(title) > 3:
@@ -65,75 +46,77 @@ def parse_hasaki_html(html_content):
                 "link": link,
                 "image": img_url
             })
-            
     return products
 
-def execute_strategy(strategy_id, query):
-    """
-    Hàm thực thi 1 chiến lược cụ thể. 
-    Trộn lẫn User-Agent, Endpoint và Phương pháp gọi HTTP để thử vận may.
-    """
-    ua = USER_AGENTS[strategy_id % len(USER_AGENTS)]
-    endpoint = ENDPOINTS[strategy_id % len(ENDPOINTS)].format(urllib.parse.quote_plus(query))
-    
-    headers = {
-        'User-Agent': ua,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Referer': 'https://www.google.com/' if strategy_id % 2 == 0 else 'https://hasaki.vn/',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1'
-    }
+# --- CÁC CHIẾN THUẬT VƯỢT TƯỜNG LỬA (PROXY BOUNCING) ---
 
+def strategy_allorigins(target_url):
+    """Mượn server của AllOrigins để cào giùm"""
     try:
-        # Cách 1: Dùng thư viện requests
-        if strategy_id % 2 == 0:
-            res = requests.get(endpoint, headers=headers, timeout=8)
-            html = res.text
-        # Cách 2: Dùng urllib mặc định của Python (Rất hay lách được CF)
-        else:
-            req = urllib.request.Request(endpoint, headers=headers)
-            with urllib.request.urlopen(req, context=ctx, timeout=8) as response:
-                html = response.read().decode('utf-8')
+        proxy_url = "https://api.allorigins.win/get?url=" + urllib.parse.quote(target_url)
+        res = requests.get(proxy_url, timeout=15)
+        html = res.json().get('contents', '')
+        return parse_hasaki_html(html)
+    except:
+        return []
 
-        # Kiểm tra xem có bị Cloudflare tóm không
-        if "Just a moment..." in html or "cf-browser-verification" in html or "Enable JavaScript and cookies to continue" in html:
-            raise Exception("Bị Cloudflare chặn")
+def strategy_codetabs(target_url):
+    """Mượn server của CodeTabs để lách IP"""
+    try:
+        proxy_url = "https://api.codetabs.com/v1/proxy?quest=" + urllib.parse.quote(target_url)
+        res = requests.get(proxy_url, timeout=15)
+        return parse_hasaki_html(res.text)
+    except:
+        return []
 
-        # Bắt đầu trích xuất dữ liệu
-        products = parse_hasaki_html(html)
-        
-        # Nếu cào được > 0 sản phẩm, chiến lược này đã THẮNG!
-        if len(products) > 0:
-            return products
-            
-        raise Exception("Không tìm thấy sản phẩm hoặc bị đổi cấu trúc HTML")
+def strategy_direct(target_url):
+    """Thử đâm thẳng lỡ khi Hasaki nới lỏng bảo mật"""
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/121.0.0.0 Safari/537.36'}
+        res = requests.get(target_url, headers=headers, timeout=10)
+        return parse_hasaki_html(res.text)
+    except:
+        return []
 
-    except Exception as e:
-        return None  # Thất bại, trả về None để các luồng khác tiếp tục chạy
 
 @app.route('/api/scraper', methods=['GET'])
 def scrape_hasaki():
-    query = request.args.get('q', '')
+    query = request.args.get('q', '').strip().lower()
     if not query:
-        return jsonify([])
+        return jsonify({"data": [], "cached": False})
 
-    # CHẠY ĐA LUỒNG: Tạo ra 30 chiến lược khác nhau cùng tấn công vào Hasaki
-    strategies_count = 30
-    
-    # Mở 15 workers (luồng) chạy song song để đảm bảo tốc độ nhanh nhất
-    with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
-        futures = {executor.submit(execute_strategy, i, query): i for i in range(strategies_count)}
+    # 1. Trả ngay kết quả nếu đã có người tìm trước đó (Cache)
+    current_time = time.time()
+    if query in CACHE:
+        if current_time - CACHE[query]['timestamp'] < CACHE_TTL:
+            return jsonify({"data": CACHE[query]['data'], "cached": True})
+        else:
+            del CACHE[query]
+
+    encoded_query = urllib.parse.quote_plus(query)
+    target_url = f"https://hasaki.vn/catalogsearch/result?q={encoded_query}"
+
+    # 2. MỞ 3 LUỒNG SONG SONG: Ai mang dữ liệu về trước thì lấy của người đó!
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        future_to_strategy = {
+            executor.submit(strategy_allorigins, target_url): "allorigins",
+            executor.submit(strategy_codetabs, target_url): "codetabs",
+            executor.submit(strategy_direct, target_url): "direct"
+        }
         
-        # Ngay khi có 1 luồng trả về kết quả thành công, lấy ngay kết quả đó và ngừng chờ!
-        for future in concurrent.futures.as_completed(futures):
+        for future in concurrent.futures.as_completed(future_to_strategy):
             result = future.result()
-            if result is not None and len(result) > 0:
-                return jsonify(result)
-                
-    # Nếu cả 30 cách đều bị chặn (Rất hiếm khi xảy ra)
-    return jsonify({"error": "Hệ thống Hasaki đang phòng thủ quá chặt. Thử lại từ khóa khác hoặc bấm tìm lại nhé!"})
+            if result and len(result) > 0:
+                # Lưu vào Cache và trả kết quả ngay
+                CACHE[query] = {
+                    'data': result,
+                    'timestamp': current_time
+                }
+                return jsonify({"data": result, "cached": False})
 
+    return jsonify({"error": "Hasaki phòng thủ quá chặt. Nhưng đừng lo, bạn thử bấm tìm kiếm lại lần nữa xem!"})
+
+# Fallback cho Vercel
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
