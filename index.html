@@ -217,8 +217,8 @@
         if(currentTab === 'shopping') {
             container.innerHTML = `
                 <div class="search-container" style="margin-bottom: 10px;">
-                    <input type="text" id="search-input" class="search-input" placeholder="Tìm tên mỹ phẩm (VD: Tẩy trang Loreal, bha)..." onkeypress="handleEnter(event)">
-                    <button class="btn-search" onclick="executeSearch()">Tìm trên Shopee Mall</button>
+                    <input type="text" id="search-input" class="search-input" placeholder="Tìm tên mỹ phẩm (VD: bha, kem chống nắng)..." onkeypress="handleEnter(event)">
+                    <button class="btn-search" onclick="executeSearch()" style="background: #1A94FF;">Tìm trên Tiki</button>
                 </div>
                 <div class="suggestions">
                     <span style="font-size: 0.8rem; color: var(--text-muted); line-height: 28px;">🔥 Xu hướng:</span>
@@ -229,7 +229,7 @@
                 </div>
                 <div id="shopping-results" class="product-grid">
                     <div style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 30px;">
-                        Gõ từ khóa vào ô bên trên để tìm kiếm sản phẩm chính hãng (Mall) từ Shopee!
+                        Hệ thống kết nối trực tiếp với <b>Tiki Trading</b>. Nhập tên sản phẩm để bắt đầu!
                     </div>
                 </div>
             `;
@@ -275,7 +275,7 @@
         if (!query) return;
 
         const resultsDiv = document.getElementById('shopping-results');
-        resultsDiv.innerHTML = `<div style="color: var(--primary); font-weight: bold; text-align: center; grid-column: 1/-1; padding: 40px;">🔄 Đang lấy dữ liệu từ nền tảng Shopee...</div>`;
+        resultsDiv.innerHTML = `<div style="color: var(--primary); font-weight: bold; text-align: center; grid-column: 1/-1; padding: 40px;">🔄 Đang lấy dữ liệu từ nền tảng Tiki...</div>`;
 
         fetch('/api/scraper?q=' + encodeURIComponent(query))
             .then(res => res.json())
@@ -285,7 +285,7 @@
                     return;
                 }
                 if(!data || data.length === 0) {
-                    resultsDiv.innerHTML = `<div style="color: var(--text-muted); text-align:center; grid-column:1/-1;">Không tìm thấy sản phẩm. Shopee có thể đang chặn hoặc hết hàng.</div>`;
+                    resultsDiv.innerHTML = `<div style="color: var(--text-muted); text-align:center; grid-column:1/-1;">Không tìm thấy sản phẩm. Tiki có thể đang chặn hoặc hết hàng.</div>`;
                     return;
                 }
 
@@ -295,7 +295,7 @@
                         <div class="product-info">
                             <div class="product-name">${p.title}</div>
                             <div class="product-price">${p.price}</div>
-                            <a href="${p.link}" target="_blank" class="btn-buy">Mua tại Shopee</a>
+                            <a href="${p.link}" target="_blank" class="btn-buy">Mua tại Tiki</a>
                         </div>
                     </div>
                 `).join('');
