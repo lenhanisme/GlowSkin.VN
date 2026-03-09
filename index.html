@@ -124,7 +124,7 @@
                 <button class="tab-btn active" onclick="switchTab(event, 'morning')">🌅 Sáng</button>
                 <button class="tab-btn" onclick="switchTab(event, 'evening')">🌙 Tối</button>
                 <button class="tab-btn" onclick="switchTab(event, 'lifestyle')">🧘‍♀️ Sinh hoạt</button>
-                <button class="tab-btn" onclick="switchTab(event, 'shopping')">🛒 Tìm Mỹ Phẩm (Hasaki)</button>
+                <button class="tab-btn" onclick="switchTab(event, 'shopping')">🛒 Tra Giá Mỹ Phẩm</button>
             </div>
         </div>
         <div id="main-content-area"></div>
@@ -216,13 +216,20 @@
         // Tab Mua Sắm (Cào Hasaki)
         if(currentTab === 'shopping') {
             container.innerHTML = `
-                <div class="search-container">
-                    <input type="text" id="search-input" class="search-input" placeholder="Tìm tên sản phẩm (VD: serum B5 la roche, BHA obagi)..." onkeypress="handleEnter(event)">
-                    <button class="btn-search" onclick="executeSearch()">Tìm kiếm Hasaki</button>
+                <div class="search-container" style="margin-bottom: 10px;">
+                    <input type="text" id="search-input" class="search-input" placeholder="Tìm tên mỹ phẩm (VD: Tẩy trang Loreal, bha)..." onkeypress="handleEnter(event)">
+                    <button class="btn-search" onclick="executeSearch()">Tìm trên Shopee Mall</button>
+                </div>
+                <div class="suggestions">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); line-height: 28px;">🔥 Xu hướng:</span>
+                    <button class="tag-suggest" onclick="quickSearch('Serum B5 La Roche Posay')">Serum B5</button>
+                    <button class="tag-suggest" onclick="quickSearch('BHA Paula Choice')">BHA Trị mụn</button>
+                    <button class="tag-suggest" onclick="quickSearch('Kem chống nắng Skin Aqua')">KCN Skin Aqua</button>
+                    <button class="tag-suggest" onclick="quickSearch('Tẩy trang Bioderma')">Tẩy trang Bioderma</button>
                 </div>
                 <div id="shopping-results" class="product-grid">
                     <div style="color: var(--text-muted); grid-column: 1/-1; text-align: center; padding: 30px;">
-                        Gõ từ khóa vào ô bên trên để tìm kiếm giá mỹ phẩm real-time từ Hasaki!
+                        Gõ từ khóa vào ô bên trên để tìm kiếm sản phẩm chính hãng (Mall) từ Shopee!
                     </div>
                 </div>
             `;
@@ -268,7 +275,7 @@
         if (!query) return;
 
         const resultsDiv = document.getElementById('shopping-results');
-        resultsDiv.innerHTML = `<div style="color: var(--primary); font-weight: bold; text-align: center; grid-column: 1/-1; padding: 40px;">🔄 Đang lấy dữ liệu từ Hasaki...</div>`;
+        resultsDiv.innerHTML = `<div style="color: var(--primary); font-weight: bold; text-align: center; grid-column: 1/-1; padding: 40px;">🔄 Đang lấy dữ liệu từ nền tảng Shopee...</div>`;
 
         fetch('/api/scraper?q=' + encodeURIComponent(query))
             .then(res => res.json())
@@ -278,7 +285,7 @@
                     return;
                 }
                 if(!data || data.length === 0) {
-                    resultsDiv.innerHTML = `<div style="color: var(--text-muted); text-align:center; grid-column:1/-1;">Không tìm thấy sản phẩm. Hasaki có thể đang chặn hoặc hết hàng.</div>`;
+                    resultsDiv.innerHTML = `<div style="color: var(--text-muted); text-align:center; grid-column:1/-1;">Không tìm thấy sản phẩm. Shopee có thể đang chặn hoặc hết hàng.</div>`;
                     return;
                 }
 
@@ -288,7 +295,7 @@
                         <div class="product-info">
                             <div class="product-name">${p.title}</div>
                             <div class="product-price">${p.price}</div>
-                            <a href="${p.link}" target="_blank" class="btn-buy">Mua tại Hasaki</a>
+                            <a href="${p.link}" target="_blank" class="btn-buy">Mua tại Shopee</a>
                         </div>
                     </div>
                 `).join('');
