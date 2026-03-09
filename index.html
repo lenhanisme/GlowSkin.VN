@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlowSkin.VN - Skincare Routine Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #a855f7;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #0f111a;
+            --surface: #1e2130;
+            --surface-hover: #2a2e40;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+        /* Background Effects */
+        .bg-glow-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
+        .bg-glow-2 { position: fixed; bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, rgba(0,0,0,0) 70%); z-index: -1; pointer-events: none; }
+
+        /* Header & Footer */
+        .site-header { background: rgba(30, 33, 48, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+        .logo-link { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo-link h1 { font-size: 1.5rem; font-weight: 800; background: linear-gradient(90deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .site-footer { margin-top: auto; padding: 20px; text-align: center; border-top: 1px solid var(--border); background: rgba(30, 33, 48, 0.4); color: var(--text-muted); font-size: 0.85rem; }
+        .site-footer span { color: var(--primary); font-weight: bold; }
+
+        /* Layout Container */
+        .app-container { display: flex; max-width: 1400px; margin: 0 auto; padding: 24px; gap: 30px; align-items: flex-start; width: 100%; flex: 1; }
+
+        /* Sidebar */
+        .sidebar { flex: 0 0 320px; background: rgba(30, 33, 48, 0.6); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 24px; padding: 24px; position: sticky; top: 90px; }
+        .streak-badge { background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 8px 16px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; margin-bottom: 24px; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .stat-box { background: var(--surface); padding: 20px; border-radius: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
+        .stat-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block; }
+        .stat-value { font-size: 1.5rem; font-weight: 800; }
+        .water-controls { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-water { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+        .btn-water:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar { width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: 0.5s ease; }
+        .btn-reset { width: 100%; padding: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; cursor: pointer; font-weight: 600; margin-top: 10px; transition: 0.2s; }
+
+        /* Main Content */
+        .main-content { flex: 1; min-width: 0; }
+        .tabs-container { margin-bottom: 24px; }
+        .tabs-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: var(--primary) transparent; }
+        .tab-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); padding: 12px 24px; border-radius: 100px; font-size: 0.95rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+
+        /* Task List */
+        .task-list { display: flex; flex-direction: column; gap: 16px; }
+        .task-item { background: rgba(30, 33, 48, 0.5); border: 1px solid var(--border); border-radius: 20px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; transition: 0.3s; }
+        .task-item.checked { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        .checkbox { width: 28px; height: 28px; border: 2px solid var(--text-muted); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .task-item.checked .checkbox { background: var(--success); border-color: var(--success); }
+        .task-item.checked .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 16px; }
+        .task-content { flex: 1; }
+        .task-title { font-size: 1.1rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block; }
+        .task-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+        .task-item.checked .task-title { text-decoration: line-through; color: var(--text-muted); }
+        .btn-skip { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; cursor: pointer; font-weight: 600; }
+
+        /* Product Card for Shopping Tab */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .product-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .product-img { width: 100%; height: 200px; object-fit: contain; background: white; padding: 10px; }
+        .product-info { padding: 15px; }
+        .product-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-price { color: var(--warning); font-weight: 800; font-size: 1.2rem; }
+        .btn-buy { display: block; text-align: center; background: var(--primary); color: white; text-decoration: none; padding: 10px; border-radius: 8px; margin-top: 15px; font-weight: 600; }
+        
+        .loading-text { text-align: center; color: var(--primary); font-weight: bold; padding: 40px; }
+
+        /* Responsive */
+        @media (max-width: 900px) { .app-container { flex-direction: column; padding: 16px; } .sidebar { position: static; width: 100%; } }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow-1"></div>
+<div class="bg-glow-2"></div>
+
+<header class="site-header">
+    <a href="index.html" class="logo-link">
+        <h1>GlowSkin<span>.VN</span></h1>
+    </a>
+    <div style="font-size: 0.85rem; color: var(--text-muted);">Real-time Tracker</div>
+</header>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="streak-badge">🔥 Ngày kiên trì: <span id="streak-count">1</span></div>
+        <div class="stat-box">
+            <span class="stat-title">Nước uống hôm nay</span>
+            <span class="stat-value" id="water-count">0.0 / 2.0L</span>
+            <div class="water-controls">
+                <button class="btn-water" onclick="updateWater(-250)">- 250ml</button>
+                <button class="btn-water" onclick="updateWater(250)">+ 250ml</button>
+            </div>
+        </div>
+        <div class="stat-box">
+            <span class="stat-title">Tiến độ Routine</span>
+            <div style="display: flex; justify-content: space-between;">
+                <span class="stat-value" id="p-txt">0%</span>
+                <span style="color: var(--text-muted); font-size: 0.85rem;" id="task-count">0/0 Task</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="p-fill"></div></div>
+        </div>
+        <button class="btn-reset" onclick="resetDay()">Bắt đầu ngày mới</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="tabs-container">
+            <div class="tabs-scroll">
+                <button class="tab-btn active" onclick="switchTab(event, 'morning')">🌅 Sáng (Bảo vệ)</button>
+                <button class="tab-btn" onclick="switchTab(event, 'evening')">🌙 Tối (Phục hồi)</button>
+                <button class="tab-btn" onclick="switchTab(event, 'shopping')">🛒 Mỹ phẩm uy tín (Live Hasaki)</button>
+            </div>
+        </div>
+        <div id="main-list" class="task-list"></div>
+    </main>
+</div>
+
+<footer class="site-footer">
+    &copy; 2026 GlowSkin.VN - Hệ thống tối ưu hóa nhan sắc. <br>
+    Copyright by <span>@vnsoftware</span>. All rights reserved.
+</footer>
+
+<script>
+    const db = {
+        morning: [
+            { id: 101, t: "Sữa rửa mặt dịu nhẹ", d: "pH 5.5 - 6.0" },
+            { id: 102, t: "Toner / Nước hoa hồng", d: "Cân bằng độ ẩm" },
+            { id: 103, t: "Kem chống nắng (BẮT BUỘC)", d: "Bôi đủ 2 ngón tay" }
+        ],
+        evening: [
+            { id: 401, t: "Tẩy trang Kép", d: "Lau sạch kem chống nắng và bụi bẩn" },
+            { id: 402, t: "Sữa rửa mặt", d: "Massage nhẹ nhàng 1 phút" },
+            { id: 403, t: "Serum Trị thâm / Phục hồi", d: "Vitamin C, B5, Niacinamide" },
+            { id: 404, t: "Kem dưỡng ẩm", d: "Khóa ẩm qua đêm" }
+        ]
+    };
+
+    let currentTab = 'morning';
+    let state = { checkedIds: [], skippedIds: [], waterMl: 0 };
+
+    function render() {
+        const list = document.getElementById('main-list');
+        
+        // Nếu là tab mua sắm -> Gọi API Vercel
+        if(currentTab === 'shopping') {
+            list.innerHTML = `<div class="loading-text">🔄 Đang lấy dữ liệu real-time từ Hasaki...</div>`;
+            
+            // Gọi serverless function (Tương đối: /api/scraper)
+            fetch('/api/scraper')
+                .then(res => res.json())
+                .then(data => {
+                    if(data.error) {
+                        list.innerHTML = `<div style="color:red">Lỗi API: ${data.error}</div>`;
+                        return;
+                    }
+                    if(data.length === 0) {
+                        list.innerHTML = `<div>Không tìm thấy sản phẩm hoặc Hasaki chặn truy cập.</div>`;
+                        return;
+                    }
+
+                    list.innerHTML = `<div class="product-grid">` + data.map(p => `
+                        <div class="product-card">
+                            <img src="${p.image}" class="product-img" alt="img">
+                            <div class="product-info">
+                                <div class="product-name">${p.title}</div>
+                                <div class="product-price">${p.price}</div>
+                                <a href="${p.link}" target="_blank" class="btn-buy">Mua tại Hasaki</a>
+                            </div>
+                        </div>
+                    `).join('') + `</div>`;
+                })
+                .catch(err => {
+                    list.innerHTML = `<div style="color:red">Lỗi kết nối API. Bạn đã deploy API lên Vercel chưa?</div>`;
+                });
+            return;
+        }
+
+        // Render Tab bình thường
+        list.className = 'task-list';
+        list.innerHTML = db[currentTab].map(item => `
+            <div class="task-item ${state.checkedIds.includes(item.id) ? 'checked' : ''}">
+                <div class="checkbox" onclick="toggle(${item.id})"></div>
+                <div class="task-content">
+                    <span class="task-title">${item.t}</span>
+                    <span class="task-desc">${item.d}</span>
+                </div>
+            </div>
+        `).join('');
+        updateStats();
+    }
+
+    function switchTab(event, tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        render();
+    }
+
+    function toggle(id) {
+        if (state.checkedIds.includes(id)) state.checkedIds = state.checkedIds.filter(x => x !== id);
+        else state.checkedIds.push(id);
+        render();
+    }
+
+    function updateWater(ml) {
+        state.waterMl = Math.max(0, state.waterMl + ml);
+        updateStats();
+    }
+
+    function updateStats() {
+        let total = db.morning.length + db.evening.length;
+        let done = state.checkedIds.length;
+        let p = Math.round((done / total) * 100) || 0;
+        
+        document.getElementById('p-fill').style.width = p + '%';
+        document.getElementById('p-txt').innerText = p + '%';
+        document.getElementById('task-count').innerText = `${done}/${total} Task`;
+        document.getElementById('water-count').innerText = `${(state.waterMl/1000).toFixed(1)} / 2.0L`;
+    }
+
+    function resetDay() { state.checkedIds = []; state.waterMl = 0; render(); }
+
+    render();
+</script>
+</body>
+</html>
